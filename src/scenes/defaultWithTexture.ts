@@ -22,65 +22,65 @@ import "@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent";
 import { NiceLoader } from "../externals/niceloader";
 
 export class DefaultSceneWithTexture implements CreateSceneClass {
-    createScene = async (
-        engine: Engine,
-        canvas: HTMLCanvasElement
-    ): Promise<Scene> => {
-        // This creates a basic Babylon Scene object (non-mesh)
-        const scene = new Scene(engine);
+  createScene = async (
+    engine: Engine,
+    canvas: HTMLCanvasElement
+  ): Promise<Scene> => {
+    // This creates a basic Babylon Scene object (non-mesh)
+    const scene = new Scene(engine);
 
-        if (!scene.environmentTexture) {
-            const hdrTexture = new CubeTexture(
-                "https://playground.babylonjs.com/textures/environment.env",
-                scene
-            );
-            hdrTexture.gammaSpace = false;
-            scene.environmentTexture = hdrTexture;
-        }
+    if (!scene.environmentTexture) {
+      const hdrTexture = new CubeTexture(
+        "https://playground.babylonjs.com/textures/environment.env",
+        scene
+      );
+      hdrTexture.gammaSpace = false;
+      scene.environmentTexture = hdrTexture;
+    }
 
-        const modelsArray: any = [];
+    const modelsArray: any = [];
 
-        void Promise.all([
-            import("@babylonjs/core/Debug/debugLayer"),
-            import("@babylonjs/inspector"),
-        ]).then((_values) => {
-            console.log(_values);
-            scene.debugLayer.show({
-                handleResize: true,
-                overlay: true,
-                embedMode: true,
-                globalRoot: document.getElementById("#root") || undefined,
-            });
-        });
+    void Promise.all([
+      import("@babylonjs/core/Debug/debugLayer"),
+      import("@babylonjs/inspector"),
+    ]).then((_values) => {
+      console.log(_values);
+      scene.debugLayer.show({
+        handleResize: true,
+        overlay: true,
+        embedMode: true,
+        globalRoot: document.getElementById("#root") || undefined,
+      });
+    });
 
-        // This creates and positions a free camera (non-mesh)
-        const camera = new ArcRotateCamera(
-            "my first camera",
-            0,
-            Math.PI / 3,
-            10,
-            new Vector3(0, 0, 0),
-            scene
-        );
+    // This creates and positions a free camera (non-mesh)
+    const camera = new ArcRotateCamera(
+      "my first camera",
+      0,
+      Math.PI / 3,
+      10,
+      new Vector3(0, 0, 0),
+      scene
+    );
 
-        // This targets the camera to scene origin
-        camera.setTarget(Vector3.Zero());
+    // This targets the camera to scene origin
+    camera.setTarget(Vector3.Zero());
 
-        // This attaches the camera to the canvas
-        camera.attachControl(canvas, true);
+    // This attaches the camera to the canvas
+    camera.attachControl(canvas, true);
 
-        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-        // const light = new HemisphericLight(
-        //     "light",
-        //     new Vector3(0, 1, 0),
-        //     scene
-        // );
+    // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+    // const light = new HemisphericLight(
+    //     "light",
+    //     new Vector3(0, 1, 0),
+    //     scene
+    // );
 
-        // // Default intensity is 1. Let's dim the light a small amount
-        // light.intensity = 0.7;
+    // // Default intensity is 1. Let's dim the light a small amount
+    // light.intensity = 0.7;
 
-        // Our built-in 'sphere' shape.
-        /*
+    // Our built-in 'sphere' shape.
+    /*
         const sphere = CreateSphere(
             "sphere",
             { diameter: 2, segments: 32 },
@@ -117,10 +117,10 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
 
 */
 
-        new NiceLoader(scene, modelsArray);
+    new NiceLoader(scene, modelsArray);
 
-        return scene;
-    };
+    return scene;
+  };
 }
 
 export default new DefaultSceneWithTexture();
