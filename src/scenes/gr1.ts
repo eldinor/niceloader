@@ -5,6 +5,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { CreateSphere } from "@babylonjs/core/Meshes/Builders/sphereBuilder";
 import { CreateGround } from "@babylonjs/core/Meshes/Builders/groundBuilder";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { PBRMaterial } from "@babylonjs/core/Materials";
 import { CubeTexture } from "@babylonjs/core/Materials";
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import { Tools } from "@babylonjs/core/Misc/tools";
@@ -17,6 +18,9 @@ import { CreateSceneClass } from "../createScene";
 
 // If you don't need the standard material you will still need to import it since the scene requires it.
 // import "@babylonjs/core/Materials/standardMaterial";
+
+import "@babylonjs/core/Materials/";
+
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 
 import grassTextureUrl from "../../assets/grass.jpg";
@@ -30,6 +34,8 @@ import "@babylonjs/core/Materials/Textures/Loaders/envTextureLoader";
 import { NiceLoader } from "../externals/niceloader";
 
 import { CharacterController } from "../externals/CharacterController";
+
+import { createGround } from "../externals/createGround";
 
 export class DefaultSceneWithTexture implements CreateSceneClass {
   createScene = async (
@@ -98,17 +104,6 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
     sphere.position.x = 10;
     sphere.position.y = 1;
 
-    // Our built-in 'ground' shape.
-    const ground = CreateGround("ground", { width: 60, height: 60 }, scene);
-    ground.checkCollisions = true;
-
-    // Load a texture to be used as the ground material
-    const groundMaterial = new StandardMaterial("ground material", scene);
-    groundMaterial.diffuseTexture = new Texture(grassTextureUrl, scene);
-
-    ground.material = groundMaterial;
-    ground.receiveShadows = true;
-
     const light = new DirectionalLight("light", new Vector3(0, -1, 1), scene);
     light.intensity = 0.5;
     light.position.y = 10;
@@ -119,6 +114,14 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
     shadowGenerator.setDarkness(0.2);
 
     shadowGenerator.getShadowMap()!.renderList!.push(sphere);
+
+    //
+
+    const ground = createGround(scene);
+    //@ts-ignore
+    (ground.material as StandardMaterial).reflectionTexture.renderList.push(
+      sphere
+    );
 
     //
     /*
@@ -142,6 +145,12 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
         var player = meshes[0];
         player.name = "Avatar";
         shadowGenerator.addShadowCaster(player);
+
+        player.getChildMeshes().forEach((m) => {
+          (
+            (ground.material as StandardMaterial).reflectionTexture as any
+          ).renderList.push(m);
+        });
 
         console.log(aniGroups);
         aniGroups.forEach((a) => a.stop());
