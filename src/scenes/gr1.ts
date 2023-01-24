@@ -91,45 +91,37 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
     // light.intensity = 0.7;
 
     // Our built-in 'sphere' shape.
+
+    const sphere = CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
+
+    // Move the sphere upward 1/2 its height
+    sphere.position.x = 10;
+    sphere.position.y = 1;
+
+    // Our built-in 'ground' shape.
+    const ground = CreateGround("ground", { width: 60, height: 60 }, scene);
+    ground.checkCollisions = true;
+
+    // Load a texture to be used as the ground material
+    const groundMaterial = new StandardMaterial("ground material", scene);
+    groundMaterial.diffuseTexture = new Texture(grassTextureUrl, scene);
+
+    ground.material = groundMaterial;
+    ground.receiveShadows = true;
+
+    const light = new DirectionalLight("light", new Vector3(0, -1, 1), scene);
+    light.intensity = 0.5;
+    light.position.y = 10;
+
+    const shadowGenerator = new ShadowGenerator(512, light);
+    shadowGenerator.useBlurExponentialShadowMap = true;
+    shadowGenerator.blurScale = 2;
+    shadowGenerator.setDarkness(0.2);
+
+    shadowGenerator.getShadowMap()!.renderList!.push(sphere);
+
+    //
     /*
-        const sphere = CreateSphere(
-            "sphere",
-            { diameter: 2, segments: 32 },
-            scene
-        );
-
-        // Move the sphere upward 1/2 its height
-        sphere.position.y = 1;
-
-        // Our built-in 'ground' shape.
-        const ground = CreateGround("ground", { width: 6, height: 6 }, scene);
-
-        // Load a texture to be used as the ground material
-        const groundMaterial = new StandardMaterial("ground material", scene);
-        groundMaterial.diffuseTexture = new Texture(grassTextureUrl, scene);
-
-        ground.material = groundMaterial;
-        ground.receiveShadows = true;
-
-        const light = new DirectionalLight(
-            "light",
-            new Vector3(0, -1, 1),
-            scene
-        );
-        light.intensity = 0.5;
-        light.position.y = 10;
-
-        const shadowGenerator = new ShadowGenerator(512, light);
-        shadowGenerator.useBlurExponentialShadowMap = true;
-        shadowGenerator.blurScale = 2;
-        shadowGenerator.setDarkness(0.2);
-
-        shadowGenerator.getShadowMap()!.renderList!.push(sphere);
-
-*/
-
-    //  new NiceLoader(scene, modelsArray);
-
     const importResult = await SceneLoader.ImportMeshAsync(
       "",
       "/",
@@ -140,7 +132,7 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
     importResult.meshes.forEach((m) => {
       m.checkCollisions = true;
     });
-
+*/
     SceneLoader.ImportMesh(
       "",
       "",
@@ -149,6 +141,7 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
       (meshes, particleSystems, skeletons, aniGroups) => {
         var player = meshes[0];
         player.name = "Avatar";
+        shadowGenerator.addShadowCaster(player);
 
         console.log(aniGroups);
         aniGroups.forEach((a) => a.stop());
