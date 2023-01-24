@@ -320,7 +320,7 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
     // mainPipeline(scene, camera);
     //
 
-    await loadMain(scene, "walls");
+    await loadMain(scene);
 
     return scene;
   };
