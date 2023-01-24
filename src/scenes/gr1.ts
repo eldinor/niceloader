@@ -14,6 +14,8 @@ import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 
 import { mainPipeline } from "../externals/Pipeline";
 
+import { initGroundRenderList } from "../externals/createGround";
+
 import { CreateSceneClass } from "../createScene";
 
 // If you don't need the standard material you will still need to import it since the scene requires it.
@@ -36,6 +38,7 @@ import { NiceLoader } from "../externals/niceloader";
 import { CharacterController } from "../externals/CharacterController";
 
 import { createGround } from "../externals/createGround";
+import { WaterMaterial } from "@babylonjs/materials/water";
 
 export class DefaultSceneWithTexture implements CreateSceneClass {
   createScene = async (
@@ -53,7 +56,7 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
       hdrTexture.gammaSpace = false;
       scene.environmentTexture = hdrTexture;
     }
-    scene.createDefaultSkybox(scene.environmentTexture, true, 10000, 0.2);
+    scene.createDefaultSkybox(scene.environmentTexture, true, 10000, 0.1);
 
     const modelsArray: any = [];
 
@@ -117,12 +120,11 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
 
     //
 
-    const ground = createGround(scene);
-    //@ts-ignore
+    /*
     (ground.material as StandardMaterial).reflectionTexture.renderList.push(
       sphere
     );
-
+*/
     //
     /*
     const importResult = await SceneLoader.ImportMeshAsync(
@@ -131,6 +133,7 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
       "walls.glb",
       scene
     );
+
     importResult.meshes[0].scaling.scaleInPlace(0.4);
     importResult.meshes.forEach((m) => {
       m.checkCollisions = true;
@@ -146,10 +149,13 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
         player.name = "Avatar";
         shadowGenerator.addShadowCaster(player);
 
+        const ground = createGround(scene, "water").then(() =>
+          initGroundRenderList(scene)
+        );
+
+        console.log(player);
         player.getChildMeshes().forEach((m) => {
-          (
-            (ground.material as StandardMaterial).reflectionTexture as any
-          ).renderList.push(m);
+          //  console.log(m);
         });
 
         console.log(aniGroups);
@@ -168,6 +174,7 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
         player.rotationQuaternion = null;
 
         player.rotation.y = Math.PI;
+
         var alpha = (3 * Math.PI) / 2 - player.rotation.y;
         var beta = Math.PI / 2.5;
         var target = new Vector3(
@@ -303,11 +310,14 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
     };
 */
     //
-
-    scene.onReadyObservable.addOnce(() => new NiceLoader(scene, modelsArray));
+    //  await initGroundRenderList(scene);
+    scene.onReadyObservable.addOnce(() => {
+      new NiceLoader(scene, modelsArray);
+    });
     //
     // mainPipeline(scene, camera);
     //
+
     return scene;
   };
 }
