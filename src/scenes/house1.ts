@@ -18,6 +18,8 @@ import { initGroundRenderList } from "../externals/createGround";
 
 import { CreateSceneClass } from "../createScene";
 
+import { mdPerfChecker } from "../externals/PerfChecker";
+
 // If you don't need the standard material you will still need to import it since the scene requires it.
 // import "@babylonjs/core/Materials/standardMaterial";
 
@@ -321,6 +323,54 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
     //
 
     await loadMain(scene);
+
+    mdPerfChecker(scene, engine, {});
+
+    window.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.defaultPrevented) {
+          return; // Do nothing if the event was already processed
+        }
+        console.log(event.key);
+        switch (event.key) {
+          case "i":
+            //    document.getElementById("perfChecker").style.display = "initial";
+            mdPerfChecker(scene, engine, {});
+            break;
+
+          case "Down": // IE/Edge specific value
+          case "ArrowDown":
+            // Do something for "down arrow" key press.
+            break;
+          case "Up": // IE/Edge specific value
+          case "ArrowUp":
+            // Do something for "up arrow" key press.
+            break;
+          case "Left": // IE/Edge specific value
+          case "ArrowLeft":
+            // Do something for "left arrow" key press.
+            break;
+          case "Right": // IE/Edge specific value
+          case "ArrowRight":
+            // Do something for "right arrow" key press.
+            break;
+          case "Enter":
+            // Do something for "enter" or "return" key press.
+            break;
+          case "Esc": // IE/Edge specific value
+          case "Escape":
+            // Do something for "esc" key press.
+            break;
+          default:
+            return; // Quit when this doesn't handle the key event.
+        }
+
+        // Cancel the default action to avoid it being handled twice
+        event.preventDefault();
+      },
+      true
+    );
 
     return scene;
   };
