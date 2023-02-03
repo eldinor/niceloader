@@ -10,7 +10,7 @@ import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import { Tools } from "@babylonjs/core/Misc/tools";
 import { AnimationGroup } from "@babylonjs/core/Animations/animationGroup";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
-import { PBRMaterial } from "@babylonjs/core/";
+import { PBRMaterial, ReflectionProbe } from "@babylonjs/core/";
 import { mainPipeline } from "../externals/Pipeline";
 
 import { CreateSceneClass } from "../createScene";
@@ -175,7 +175,7 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
       { width: 60, height: 60 },
       scene
     );
-    ground.position.y = 0.2;
+    ground.position.y = -0.1;
 
     ground.physicsImpostor = new PhysicsImpostor(
       ground,
@@ -184,6 +184,7 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
     );
 
     ground.material = sphere.material;
+
     /*
     importResult.meshes.forEach((m) => {
       if (m.name.includes("collider")) {
@@ -203,7 +204,20 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
       (meshes, particleSystems, skeletons, aniGroups) => {
         var player = meshes[0];
         player.name = "Avatar";
+        //
 
+        var probe = new ReflectionProbe(
+          "satelliteProbe" + player.name,
+          512,
+          scene
+        );
+        for (var index = 0; index < scene.meshes.length; index++) {
+          probe.renderList.push(scene.meshes[index]);
+        }
+
+        (sphere.material as PBRMaterial).reflectionTexture = probe.cubeTexture;
+
+        //
         console.log(aniGroups);
         aniGroups.forEach((a) => a.stop());
 
