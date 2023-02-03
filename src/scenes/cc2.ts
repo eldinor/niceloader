@@ -106,6 +106,13 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
     sphere.position.y = 9;
     sphere.position.x = -5;
 
+    setTimeout(() => {
+      sphere.physicsImpostor.applyImpulse(
+        new Vector3(0.5, 1, -1),
+        sphere.getAbsolutePosition()
+      );
+    }, 7000);
+
     // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
     // const light = new HemisphericLight(
     //     "light",

@@ -13,6 +13,7 @@ import "@babylonjs/core/Materials/standardMaterial";
 import { PhysicsImpostor } from "@babylonjs/core/Physics/physicsImpostor";
 import { ammoModule, ammoReadyPromise } from "../externals/ammo";
 import { CreateSceneClass } from "../createScene";
+import { CubeTexture } from "@babylonjs/core";
 
 class PhysicsSceneWithAmmo implements CreateSceneClass {
   preTasks = [ammoReadyPromise];
@@ -23,6 +24,16 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
   ): Promise<Scene> => {
     // This creates a basic Babylon Scene object (non-mesh)
     const scene = new Scene(engine);
+
+    if (!scene.environmentTexture) {
+      const hdrTexture = new CubeTexture(
+        "https://playground.babylonjs.com/textures/environment.env",
+        scene
+      );
+      hdrTexture.gammaSpace = false;
+      scene.environmentTexture = hdrTexture;
+    }
+    scene.createDefaultSkybox(scene.environmentTexture, true, 10000, 0.2);
 
     scene.enablePhysics(null, new AmmoJSPlugin(true, ammoModule));
 
