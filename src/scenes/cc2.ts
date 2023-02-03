@@ -106,6 +106,8 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
     sphere.position.y = 9;
     sphere.position.x = -5;
 
+    sphere.checkCollisions = true;
+
     // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
     // const light = new HemisphericLight(
     //     "light",
@@ -175,7 +177,7 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
       { width: 60, height: 60 },
       scene
     );
-    ground.position.y = -0.1;
+    ground.position.y = 0.1;
 
     ground.physicsImpostor = new PhysicsImpostor(
       ground,
@@ -208,7 +210,7 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
 
         var probe = new ReflectionProbe(
           "satelliteProbe" + player.name,
-          512,
+          256,
           scene
         );
         for (var index = 0; index < scene.meshes.length; index++) {
