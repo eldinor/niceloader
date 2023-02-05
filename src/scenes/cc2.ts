@@ -10,7 +10,7 @@ import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import { Tools } from "@babylonjs/core/Misc/tools";
 import { AnimationGroup } from "@babylonjs/core/Animations/animationGroup";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
-import { PBRMaterial, ReflectionProbe } from "@babylonjs/core/";
+import { Mesh, PBRMaterial, ReflectionProbe } from "@babylonjs/core/";
 import { mainPipeline } from "../externals/Pipeline";
 
 import { CreateSceneClass } from "../createScene";
@@ -94,20 +94,41 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
       scene
     );
     sphere.material = new PBRMaterial("spMat", scene);
+    (sphere.material as PBRMaterial).roughness = 0.2;
 
-    sphere.physicsImpostor = new PhysicsImpostor(
-      sphere,
-      PhysicsImpostor.SphereImpostor,
-      { mass: 0.1, restitution: 0.8 },
-      scene
-    );
+    for (let i = 0; i < 10; i++) {
+      const spClone = sphere.clone("spClone");
 
-    // Move the sphere upward 1/2 its height
-    sphere.position.y = 9;
-    sphere.position.x = -5;
+      spClone.physicsImpostor = new PhysicsImpostor(
+        spClone,
+        PhysicsImpostor.SphereImpostor,
+        { mass: 0.1, restitution: 0.2 },
+        scene
+      );
 
-    sphere.checkCollisions = true;
+      // Move the sphere upward 1/2 its height
+      spClone.position.y = 9;
+      spClone.position.x = -5;
 
+      spClone.checkCollisions = true;
+    }
+
+    for (let i = 0; i < 10; i++) {
+      const box = MeshBuilder.CreateBox("box", { size: 1 }, scene);
+      box.material = sphere.material;
+
+      box.checkCollisions = true;
+
+      box.position.y = 90;
+      box.position.x = -8;
+
+      box.physicsImpostor = new PhysicsImpostor(
+        box,
+        PhysicsImpostor.BoxImpostor,
+        { mass: 1, restitution: 0.2 },
+        scene
+      );
+    }
     // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
     // const light = new HemisphericLight(
     //     "light",
@@ -186,18 +207,39 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
     );
 
     ground.material = sphere.material;
-
     /*
     importResult.meshes.forEach((m) => {
-      if (m.name.includes("collider")) {
+      if (!m.name.includes("collider")) {
         m.physicsImpostor = new PhysicsImpostor(
           m,
           PhysicsImpostor.BoxImpostor,
-          { mass: 0, restitution: 0.9 }
+          {
+            mass: 0,
+            restitution: 0.9,
+          }
         );
       }
     });
 */
+    //  console.log(scene.getMeshByName("Fill"));
+    /*
+    let ff = scene.getMeshByName("Fill");
+
+    console.log(ff);
+
+    let fc = (ff as Mesh).clone("fc");
+    fc.parent = null;
+
+    fc.position = new Vector3(-10, 10, 10);
+
+    fc.physicsImpostor = new PhysicsImpostor(fc, PhysicsImpostor.BoxImpostor, {
+      mass: 0.01,
+      restitution: 0,
+    });
+
+    //  ff.position.x -= 20;
+*/
+
     SceneLoader.ImportMesh(
       "",
       "",
@@ -207,7 +249,7 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
         var player = meshes[0];
         player.name = "Avatar";
         //
-
+        /*
         var probe = new ReflectionProbe(
           "satelliteProbe" + player.name,
           256,
@@ -218,7 +260,21 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
         }
 
         (sphere.material as PBRMaterial).reflectionTexture = probe.cubeTexture;
+*/
+        /*
+        const caps = MeshBuilder.CreateCapsule("caps", { radius: 1 }, scene);
+        caps.position.y = 2;
 
+        caps.physicsImpostor = new PhysicsImpostor(
+          caps,
+          PhysicsImpostor.SphereImpostor,
+          { mass: 0.2, restitution: 0.8 },
+          scene
+        );
+
+        player.parent = caps;
+
+        */
         //
         console.log(aniGroups);
         aniGroups.forEach((a) => a.stop());
