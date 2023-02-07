@@ -10,7 +10,12 @@ import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import { Tools } from "@babylonjs/core/Misc/tools";
 import { AnimationGroup } from "@babylonjs/core/Animations/animationGroup";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
-import { Mesh, PBRMaterial, ReflectionProbe } from "@babylonjs/core/";
+import {
+  Mesh,
+  PBRMaterial,
+  RayHelper,
+  ReflectionProbe,
+} from "@babylonjs/core/";
 import { mainPipeline } from "../externals/Pipeline";
 
 import { CreateSceneClass } from "../createScene";
@@ -35,6 +40,8 @@ import { PhysicsImpostor } from "@babylonjs/core/Physics/physicsImpostor";
 import { ammoModule, ammoReadyPromise } from "../externals/ammo";
 import { AmmoJSPlugin } from "@babylonjs/core/Physics/Plugins/ammoJSPlugin";
 import "@babylonjs/core/Physics/physicsEngineComponent";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import * as BABYLON_GUI from "@babylonjs/gui";
 
 class PhysicsSceneWithAmmo implements CreateSceneClass {
   preTasks = [ammoReadyPromise];
@@ -96,7 +103,9 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
     sphere.material = new PBRMaterial("spMat", scene);
     (sphere.material as PBRMaterial).roughness = 0.2;
 
-    for (let i = 0; i < 10; i++) {
+    sphere.checkCollisions = true;
+    /*
+    for (let i = 0; i < 5; i++) {
       const spClone = sphere.clone("spClone");
 
       spClone.physicsImpostor = new PhysicsImpostor(
@@ -112,8 +121,8 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
 
       spClone.checkCollisions = true;
     }
-
-    for (let i = 0; i < 10; i++) {
+*/
+    for (let i = 0; i < 20; i++) {
       const box = MeshBuilder.CreateBox("box", { size: 1 }, scene);
       box.material = sphere.material;
 
@@ -125,7 +134,7 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
       box.physicsImpostor = new PhysicsImpostor(
         box,
         PhysicsImpostor.BoxImpostor,
-        { mass: 1, restitution: 0.2 },
+        { mass: 2, restitution: 0.2 },
         scene
       );
     }
@@ -207,6 +216,61 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
     );
 
     ground.material = sphere.material;
+
+    const planeLeft = MeshBuilder.CreatePlane("planeLeft", {
+      width: 100,
+      height: 100,
+    });
+    planeLeft.position.z = 30;
+    planeLeft.isVisible = false;
+
+    const planeRight = MeshBuilder.CreatePlane("planeRight", {
+      width: 100,
+      height: 100,
+    });
+    planeRight.position.z = -30;
+    planeRight.rotation.y = Tools.ToRadians(180);
+    planeRight.isVisible = false;
+
+    const planeBack = MeshBuilder.CreatePlane("planeBack", {
+      width: 100,
+      height: 100,
+    });
+    planeBack.position.x = -23;
+    planeBack.rotation.y = Tools.ToRadians(-90);
+    planeBack.isVisible = false;
+
+    const planeFor = MeshBuilder.CreatePlane("planeFor", {
+      width: 100,
+      height: 100,
+    });
+    planeFor.position.x = 25;
+    planeFor.rotation.y = Tools.ToRadians(90);
+    planeFor.isVisible = false;
+
+    planeLeft.physicsImpostor = new PhysicsImpostor(
+      planeLeft,
+      PhysicsImpostor.PlaneImpostor,
+      { mass: 0, restitution: 0.9 }
+    );
+
+    planeRight.physicsImpostor = new PhysicsImpostor(
+      planeRight,
+      PhysicsImpostor.PlaneImpostor,
+      { mass: 0, restitution: 0.9 }
+    );
+
+    planeBack.physicsImpostor = new PhysicsImpostor(
+      planeBack,
+      PhysicsImpostor.PlaneImpostor,
+      { mass: 0, restitution: 0.9 }
+    );
+
+    planeFor.physicsImpostor = new PhysicsImpostor(
+      planeFor,
+      PhysicsImpostor.PlaneImpostor,
+      { mass: 0, restitution: 0.9 }
+    );
     /*
     importResult.meshes.forEach((m) => {
       if (!m.name.includes("collider")) {
@@ -248,6 +312,8 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
       (meshes, particleSystems, skeletons, aniGroups) => {
         var player = meshes[0];
         player.name = "Avatar";
+
+        player.position.z = -10;
         //
         /*
         var probe = new ReflectionProbe(
@@ -425,10 +491,23 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
     scene.onPointerDown = (evt) => {
       scene.getEngine().enterPointerlock();
     };
-*/
+*/ //
+
+    scene.onBeforeRenderObservable.add(function () {
+      checkRayCast(scene);
+    });
+    //
     //
 
-    scene.onReadyObservable.addOnce(() => new NiceLoader(scene, modelsArray));
+    const advancedTexture =
+      BABYLON_GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+    const pointerImage = new BABYLON_GUI.Image("pointer", "/Dot.png");
+    pointerImage.width = `10px`;
+    pointerImage.height = "10px";
+    pointerImage.isVisible = true;
+    advancedTexture.addControl(pointerImage);
+    //  scene.onReadyObservable.addOnce(() => new NiceLoader(scene, modelsArray));
     //
     // mainPipeline(scene, camera);
     //
@@ -437,3 +516,42 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
 }
 
 export default new PhysicsSceneWithAmmo();
+
+function checkRayCast(scene: Scene) {
+  const camera = scene.activeCamera;
+
+  const ray = camera!.getForwardRay(15);
+
+  // const rayHelper = new RayHelper(ray);
+  // rayHelper.show(scene);
+  // console.log(rayHelper);
+
+  const pickingInfo = scene.pickWithRay(ray, (m) => {
+    return m.isVisible && m.isPickable && m.visibility > 0;
+  });
+
+  if (!pickingInfo) {
+    return;
+  } else {
+    const { pickedMesh, distance } = pickingInfo;
+
+    let offsetDistance = distance - 3; // for Free camera, the value could be tuned
+
+    if (camera!.getClassName() == `ArcRotateCamera`) {
+      offsetDistance = distance - (camera as ArcRotateCamera).radius;
+    }
+    if (pickedMesh) {
+      if (pickedMesh.name!.includes("ox")) {
+        console.log("BOX", ray);
+        pickedMesh.applyImpulse(ray.direction, Vector3.Zero());
+        // (pickedMesh.material as PBRMaterial).albedoColor = Color3.Green()
+      }
+    }
+
+    return {
+      pickedMesh,
+      distance: offsetDistance,
+      pickingInfo,
+    };
+  }
+}

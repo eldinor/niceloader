@@ -5,13 +5,14 @@
 		"moduleResolution": "node",
 		"strict": true,
 		"noImplicitAny": false,
-        "noImplicitReturns": true,
+        "noImplicitReturns": false,
         "noImplicitThis": true,
         "strictNullChecks": false,
         "strictFunctionTypes": true,
         "skipLibCheck": true,
 		"preserveConstEnums":true,
         "sourceMap": true,
-        "rootDir": "src"
+        "rootDir": "src",
+        
 	}
 }
