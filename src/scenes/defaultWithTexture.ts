@@ -12,10 +12,20 @@ import "@babylonjs/loaders/glTF";
 import { CreateSceneClass } from "../createScene";
 
 import * as GT from "@gltf-transform/core";
-import { dedup, draco, prune, quantize, weld } from "@gltf-transform/functions";
+import {
+  dedup,
+  draco,
+  prune,
+  quantize,
+  simplify,
+  weld,
+  simplifyPrimitive,
+  SimplifyOptions,
+  SIMPLIFY_DEFAULTS,
+} from "@gltf-transform/functions";
 import { KHRONOS_EXTENSIONS } from "@gltf-transform/extensions";
 
-import { MeshoptEncoder } from "meshoptimizer";
+import { MeshoptEncoder, MeshoptSimplifier } from "meshoptimizer";
 import { reorder } from "@gltf-transform/functions";
 
 // If you don't need the standard material you will still need to import it since the scene requires it.
@@ -124,7 +134,7 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
 
         shadowGenerator.getShadowMap()!.renderList!.push(sphere);
 
-*/
+
     const importResult = await SceneLoader.ImportMeshAsync(
       "",
       "/",
@@ -137,12 +147,12 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
     });
     //
     console.log(importResult);
-
+*/
     async function ggg() {
       const io = new GT.WebIO().registerExtensions(KHRONOS_EXTENSIONS);
       console.log(io);
 
-      const doc = await io.read("walls.glb");
+      const doc = await io.read("samsung-controller.glb");
       console.log(doc);
 
       const firstuint = await io.writeBinary(doc);
@@ -154,11 +164,12 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
         prune(),
         weld(),
         quantize(),
-        dedup(),
-        reorder({ encoder: MeshoptEncoder })
+        dedup()
+        //  simplify({ simplifier: MeshoptSimplifier, ratio: 0.75, error: 0.001 })
+        // reorder({ encoder: MeshoptEncoder })
       );
 
-      console.log(reorder({ encoder: MeshoptEncoder, target: "size" }));
+      //  console.log(reorder({ encoder: MeshoptEncoder, target: "size" }));
       console.log(tt);
 
       let uint = await io.writeBinary(tt);
