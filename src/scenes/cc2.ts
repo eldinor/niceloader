@@ -218,6 +218,7 @@ class PhysicsSceneWithAmmo implements CreateSceneClass {
     );
     ground.position.y = -40.1;
     // ground.position.y = 0.1;
+    ground instanceof
 
     ground.physicsImpostor = new PhysicsImpostor(
       ground,
